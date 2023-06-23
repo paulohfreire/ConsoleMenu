@@ -24,86 +24,60 @@ class Program
             Console.WriteLine("Olá, digite seu Id: ");
             string id = Console.ReadLine();
             var isNumeric = int.TryParse(id, out _);
-            try
-            {
-                if (isNumeric)
-                {
-                    cliente.Id = int.Parse(id);
-                }
-                else
-                {
-                    errorMessages.Add("Identificador não é válido");
-                    foreach (string error in errorMessages)
-                    {
-                        Console.WriteLine(error);
-                    }
-                    Console.ReadLine();
-                    Console.Clear();
-                    goto Initial;
-                }
-            }
-            catch (Exception ex)
-            {
 
-                errorMessages.Add($"Erro: {ex.Message}");
+            if (isNumeric)
+            {
+                cliente.Id = int.Parse(id);
             }
-
+            else
+            {
+                errorMessages.Add("Identificador não é válido");
+                foreach (string error in errorMessages)
+                {
+                    Console.WriteLine(error);
+                }
+                Console.ReadLine();
+                Console.Clear();
+                goto Initial;
+            }
 
             Console.WriteLine("Digite seu CPF: ");
             string cpf = Console.ReadLine();
 
-            try
+            if (Cpf.Validar(cpf) == true)
             {
-                if (Cpf.Validar(cpf) == true)
-                {
-                    cliente.Cpf = long.Parse(cpf);
-                }
-                else
-                {
-                    errorMessages.Add("CPF digitado não é válido");
-                    foreach (string error in errorMessages)
-                    {
-                        Console.WriteLine(error);
-                    }
-                    Console.ReadLine();
-                    Console.Clear();
-                    goto Initial;
-                }
+                cliente.Cpf = long.Parse(cpf);
             }
-            catch (Exception ex)
+            else
             {
-
-                errorMessages.Add($"Erro: {ex.Message}");
+                errorMessages.Add("CPF digitado não é válido");
+                foreach (string error in errorMessages)
+                {
+                    Console.WriteLine(error);
+                }
+                Console.ReadLine();
+                Console.Clear();
+                goto Initial;
             }
 
             Console.WriteLine("Digite seu saldo: ");
-            float saldo = float.Parse(Console.ReadLine());
+            string saldo = Console.ReadLine();
 
-            try
+            if (!float.TryParse(saldo, out float parsedSaldo))
             {
-                
-                if (saldo < 0)
+                errorMessages.Add("Saldo não é válido");
+                foreach (string error in errorMessages)
                 {
-                    Console.WriteLine("Saldo não é válido");
-                    foreach (string error in errorMessages)
-                    {
-                        Console.WriteLine(error);
-                    }
-                    Console.ReadLine();
-                    Console.Clear();
-                    goto Initial;
+                    Console.WriteLine(error);
                 }
-                else
-                {
-                    cliente.Saldo = saldo;
-                }
+                Console.ReadLine();
+                Console.Clear();
+                goto Initial;
             }
-            catch (Exception ex)
+            else
             {
-
-                errorMessages.Add($"Erro: {ex.Message}"); ;
+                cliente.Saldo = parsedSaldo;
             }
-
 
         ConsoleMenu:
             Console.WriteLine($"Como posso ajudar, {nome}?");
@@ -159,10 +133,8 @@ class Program
 
             sair = true;
         }
-
+        
         Console.ReadLine();
     }
-
-
 
 }
