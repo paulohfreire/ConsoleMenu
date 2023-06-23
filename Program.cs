@@ -1,24 +1,17 @@
 ﻿using ConsoleMenu.Application;
 using ConsoleMenu.Model.Domain;
-using Microsoft.VisualBasic.FileIO;
-using System;
-using System.Globalization;
-using System.Runtime.Serialization;
-using System.Xml.Linq;
+using CpfCnpjLibrary;
 
 class Program
 {
-    //Metodo identificação
 
-    //Mudar Pessoa para Cliente
-
-    //Usuario visualizar Saldo
     static void Main(string[] args)
     {
     Initial:
 
         bool sair = false;
         Calculo calculo = new Calculo();
+        List<string> errorMessages = new List<string>();
 
         while (!sair)
         {
@@ -28,10 +21,91 @@ class Program
             string nome = Console.ReadLine();
             cliente.Nome = nome;
 
+            Console.WriteLine("Olá, digite seu Id: ");
+            string id = Console.ReadLine();
+            var isNumeric = int.TryParse(id, out _);
+            try
+            {
+                if (isNumeric)
+                {
+                    cliente.Id = int.Parse(id);
+                }
+                else
+                {
+                    errorMessages.Add("Identificador não é válido");
+                    foreach (string error in errorMessages)
+                    {
+                        Console.WriteLine(error);
+                    }
+                    Console.ReadLine();
+                    Console.Clear();
+                    goto Initial;
+                }
+            }
+            catch (Exception ex)
+            {
+
+                errorMessages.Add($"Erro: {ex.Message}");
+            }
+
+
+            Console.WriteLine("Digite seu CPF: ");
+            string cpf = Console.ReadLine();
+
+            try
+            {
+                if (Cpf.Validar(cpf) == true)
+                {
+                    cliente.Cpf = long.Parse(cpf);
+                }
+                else
+                {
+                    errorMessages.Add("CPF digitado não é válido");
+                    foreach (string error in errorMessages)
+                    {
+                        Console.WriteLine(error);
+                    }
+                    Console.ReadLine();
+                    Console.Clear();
+                    goto Initial;
+                }
+            }
+            catch (Exception ex)
+            {
+
+                errorMessages.Add($"Erro: {ex.Message}");
+            }
+
             Console.WriteLine("Digite seu saldo: ");
             float saldo = float.Parse(Console.ReadLine());
-            cliente.Saldo = saldo;
-            ConsoleMenu:
+
+            try
+            {
+                
+                if (saldo < 0)
+                {
+                    Console.WriteLine("Saldo não é válido");
+                    foreach (string error in errorMessages)
+                    {
+                        Console.WriteLine(error);
+                    }
+                    Console.ReadLine();
+                    Console.Clear();
+                    goto Initial;
+                }
+                else
+                {
+                    cliente.Saldo = saldo;
+                }
+            }
+            catch (Exception ex)
+            {
+
+                errorMessages.Add($"Erro: {ex.Message}"); ;
+            }
+
+
+        ConsoleMenu:
             Console.WriteLine($"Como posso ajudar, {nome}?");
             Console.WriteLine("1 - Depósito");
             Console.WriteLine("2 - Saque");
@@ -57,17 +131,17 @@ class Program
                     Console.WriteLine("Depósito");
                     Console.WriteLine("Digite o valor: ");
                     float valor = float.Parse(Console.ReadLine());
-                    
+
                     calculo.Deposito(cliente, valor);
                     Console.WriteLine($"Saldo atual é: {cliente.Saldo}");
-                    goto ConsoleMenu; 
+                    goto ConsoleMenu;
 
                 case "2":
                     Console.Clear();
                     Console.WriteLine("Saque");
                     Console.WriteLine("Digite o valor: ");
                     float valorSaque = float.Parse(Console.ReadLine());
-                    
+
                     calculo.Saque(cliente, valorSaque);
                     Console.WriteLine($"Saldo atual é: {cliente.Saldo}");
                     goto ConsoleMenu;
