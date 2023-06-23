@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ConsoleMenu.Model.Domain
+﻿namespace ConsoleMenu.Model.Domain
 {
     public class Cliente : Pessoa
     {
