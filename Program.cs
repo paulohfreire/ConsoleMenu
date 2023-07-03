@@ -1,5 +1,5 @@
 ﻿using ConsoleMenu.Application;
-using ConsoleMenu.Model.Domain;
+using ConsoleMenu.Domain.Modelo;
 using CpfCnpjLibrary;
 
 class Program
@@ -7,8 +7,6 @@ class Program
 
     static void Main(string[] args)
     {
-    Initial:
-
         bool sair = false;
         Calculo calculo = new Calculo();
         List<string> errorMessages = new List<string>();
@@ -19,7 +17,17 @@ class Program
 
             Console.WriteLine("Olá, digite seu nome: ");
             string nome = Console.ReadLine();
-            cliente.Nome = nome;
+            if (string.IsNullOrWhiteSpace(nome))
+            {
+                errorMessages.Add("Nome digitado não é válido");
+                ShowErrorsAndClearConsole(errorMessages);
+                continue;
+
+            }
+            else
+            {
+                cliente.Nome = nome;
+            }
 
             Console.WriteLine("Olá, digite seu Id: ");
             string id = Console.ReadLine();
@@ -32,13 +40,8 @@ class Program
             else
             {
                 errorMessages.Add("Identificador não é válido");
-                foreach (string error in errorMessages)
-                {
-                    Console.WriteLine(error);
-                }
-                Console.ReadLine();
-                Console.Clear();
-                goto Initial;
+                ShowErrorsAndClearConsole(errorMessages);
+                continue;
             }
 
             Console.WriteLine("Digite seu CPF: ");
@@ -51,13 +54,8 @@ class Program
             else
             {
                 errorMessages.Add("CPF digitado não é válido");
-                foreach (string error in errorMessages)
-                {
-                    Console.WriteLine(error);
-                }
-                Console.ReadLine();
-                Console.Clear();
-                goto Initial;
+                ShowErrorsAndClearConsole(errorMessages);
+                continue;
             }
 
             Console.WriteLine("Digite seu saldo: ");
@@ -66,20 +64,33 @@ class Program
             if (!float.TryParse(saldo, out float parsedSaldo))
             {
                 errorMessages.Add("Saldo não é válido");
-                foreach (string error in errorMessages)
-                {
-                    Console.WriteLine(error);
-                }
-                Console.ReadLine();
-                Console.Clear();
-                goto Initial;
+                ShowErrorsAndClearConsole(errorMessages);
+                continue;
             }
             else
             {
                 cliente.Saldo = parsedSaldo;
             }
+            sair = ShowMainMenu(nome, cliente, calculo);
 
-        ConsoleMenu:
+        }
+
+        Console.ReadLine();
+
+        static void ShowErrorsAndClearConsole(List<string> errorMessages)
+        {
+            foreach (string error in errorMessages)
+            {
+                Console.WriteLine(error);
+
+            }
+
+            Console.ReadLine();
+            Console.Clear();
+        }
+
+        static bool ShowMainMenu(string nome, Cliente cliente, Calculo calculo)
+        {
             Console.WriteLine($"Como posso ajudar, {nome}?");
             Console.WriteLine("1 - Depósito");
             Console.WriteLine("2 - Saque");
@@ -89,41 +100,27 @@ class Program
 
             string option = Console.ReadLine();
 
+
             if (option != "1" && option != "2" && option != "3")
             {
                 Console.Clear();
-                goto Initial;
+                return false;
             }
-
-
 
             switch (option)
             {
 
                 case "1":
-                    Console.Clear();
-                    Console.WriteLine("Depósito");
-                    Console.WriteLine("Digite o valor: ");
-                    float valor = float.Parse(Console.ReadLine());
-
-                    calculo.Deposito(cliente, valor);
-                    Console.WriteLine($"Saldo atual é: {cliente.Saldo}");
-                    goto ConsoleMenu;
+                    ProcessDeposit(nome, cliente, calculo);
+                    break;
 
                 case "2":
-                    Console.Clear();
-                    Console.WriteLine("Saque");
-                    Console.WriteLine("Digite o valor: ");
-                    float valorSaque = float.Parse(Console.ReadLine());
-
-                    calculo.Saque(cliente, valorSaque);
-                    Console.WriteLine($"Saldo atual é: {cliente.Saldo}");
-                    goto ConsoleMenu;
+                    ProcessWithdrawal(nome, cliente, calculo);
+                    break;
 
                 case "3":
                     Console.WriteLine("Para confirmar, clique Enter para sair do sistema definitivamente...");
-                    sair = true;
-                    break;
+                    return true;
 
                 default:
                     Console.Clear();
@@ -131,10 +128,33 @@ class Program
 
             }
 
-            sair = true;
+            return false;
         }
-        
-        Console.ReadLine();
+
+        static void ProcessDeposit(string nome, Cliente cliente, Calculo calculo)
+        {
+            Console.Clear();
+            Console.WriteLine("Depósito");
+            Console.WriteLine("Digite o valor: ");
+            float valor = float.Parse(Console.ReadLine());
+
+            calculo.Deposito(cliente, valor);
+            Console.WriteLine($"Saldo atual é: {cliente.Saldo}");
+
+            Console.ReadLine();
+        }
+
+        static void ProcessWithdrawal(string nome, Cliente cliente, Calculo calculo)
+        {
+            Console.Clear();
+            Console.WriteLine("Saque");
+            Console.WriteLine("Digite o valor: ");
+            float valorSaque = float.Parse(Console.ReadLine());
+
+            calculo.Saque(cliente, valorSaque);
+            Console.WriteLine($"Saldo atual é: {cliente.Saldo}");
+            Console.ReadLine();
+        }
     }
 
 }

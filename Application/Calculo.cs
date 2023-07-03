@@ -1,4 +1,4 @@
-﻿using ConsoleMenu.Model.Domain;
+﻿using ConsoleMenu.Domain.Modelo;
 
 namespace ConsoleMenu.Application
 {
