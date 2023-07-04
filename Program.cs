@@ -10,7 +10,7 @@ class Program
     {
         bool sair = false;
         Calculo calculo = new Calculo();
-        
+
         List<string> errorMessages = new List<string>();
         string connectionString = "Server=tcp:localhost;Database=Cliente01;User Id=sa;Password=admin123;\r\n";
 
@@ -18,7 +18,7 @@ class Program
 
         while (!sair)
         {
-            Cliente cliente = new Cliente();
+            //Cliente cliente = new Cliente();
             Console.WriteLine("Olá, digite seu nome: ");
             string nome = Console.ReadLine();
 
@@ -31,63 +31,63 @@ class Program
             }
             else
             {
-                cliente.Nome = nome;
-            }
+                Console.WriteLine("Olá, digite seu Id: ");
+                string id = Console.ReadLine();
+                var isNumeric = int.TryParse(id, out int parsedId);
 
-            Console.WriteLine("Olá, digite seu Id: ");
-            string id = Console.ReadLine();
-            var isNumeric = int.TryParse(id, out int parsedId);
-
-            if (isNumeric)
-            {
-                cliente = clienteRepository.ObterClientePorId(parsedId);
-                if (cliente != null)
+                if (isNumeric)
                 {
-                    // Cliente já existe, redirecionar para o menu
-                    sair = ShowMainMenu(cliente.Nome, cliente, calculo);
+                    Cliente cliente = clienteRepository.ObterClientePorId(parsedId);
+
+                    if (cliente == null)
+                    {
+                        cliente = new Cliente { Id = parsedId, Nome = nome };
+                        Console.WriteLine("Digite seu CPF: ");
+                        string cpf = Console.ReadLine();
+
+                        if (Cpf.Validar(cpf) == true)
+                        {
+                            cliente.Cpf = long.Parse(cpf);
+                        }
+                        else
+                        {
+                            errorMessages.Add("CPF digitado não é válido");
+                            ShowErrorsAndClearConsole(errorMessages);
+                            continue;
+                        }
+
+                        Console.WriteLine("Digite seu saldo: ");
+                        string saldo = Console.ReadLine();
+
+                        if (!float.TryParse(saldo, out float parsedSaldo))
+                        {
+                            errorMessages.Add("Saldo não é válido");
+                            ShowErrorsAndClearConsole(errorMessages);
+                            continue;
+                        }
+                        else
+                        {
+                            cliente.Saldo = parsedSaldo;
+                        }
+                        clienteRepository.SalvarCliente(cliente);
+                        sair = ShowMainMenu(nome, cliente, calculo, clienteRepository);
+                    }
+                    else
+                    {
+                        // Cliente já existe, redirecionar para o menu
+                        sair = ShowMainMenu(cliente.Nome, cliente, calculo, clienteRepository);
+                        continue;
+                    }
+
+                }
+                else
+                {
+                    errorMessages.Add("Identificador não é válido");
+                    ShowErrorsAndClearConsole(errorMessages);
                     continue;
                 }
 
-                cliente.Id = parsedId;
-                clienteRepository.SalvarCliente(cliente);
             }
-            else
-            {
-                errorMessages.Add("Identificador não é válido");
-                ShowErrorsAndClearConsole(errorMessages);
-                continue;
-            }
-
-            Console.WriteLine("Digite seu CPF: ");
-            string cpf = Console.ReadLine();
-
-            if (Cpf.Validar(cpf) == true)
-            {
-                cliente.Cpf = long.Parse(cpf);
-            }
-            else
-            {
-                errorMessages.Add("CPF digitado não é válido");
-                ShowErrorsAndClearConsole(errorMessages);
-                continue;
-            }
-
-            Console.WriteLine("Digite seu saldo: ");
-            string saldo = Console.ReadLine();
-
-            if (!float.TryParse(saldo, out float parsedSaldo))
-            {
-                errorMessages.Add("Saldo não é válido");
-                ShowErrorsAndClearConsole(errorMessages);
-                continue;
-            }
-            else
-            {
-                cliente.Saldo = parsedSaldo;
-            }
-            clienteRepository.SalvarCliente(cliente);
-            sair = ShowMainMenu(nome, cliente, calculo);
-
         }
 
         Console.ReadLine();
@@ -104,7 +104,7 @@ class Program
             Console.Clear();
         }
 
-        static bool ShowMainMenu(string nome, Cliente cliente, Calculo calculo)
+        static bool ShowMainMenu(string nome, Cliente cliente, Calculo calculo, ClienteRepository clienteRepository)
         {
             Console.WriteLine($"Como posso ajudar, {nome}?");
             Console.WriteLine("1 - Depósito");
@@ -126,11 +126,11 @@ class Program
             {
 
                 case "1":
-                    ProcessDeposit(nome, cliente, calculo);
+                    ProcessDeposit(nome, cliente, calculo, clienteRepository);
                     break;
 
                 case "2":
-                    ProcessWithdrawal(nome, cliente, calculo);
+                    ProcessWithdrawal(nome, cliente, calculo, clienteRepository);
                     break;
 
                 case "3":
@@ -146,7 +146,7 @@ class Program
             return false;
         }
 
-        static void ProcessDeposit(string nome, Cliente cliente, Calculo calculo)
+        static void ProcessDeposit(string nome, Cliente cliente, Calculo calculo, ClienteRepository clienteRepository)
         {
             Console.Clear();
             Console.WriteLine("Depósito");
@@ -155,11 +155,11 @@ class Program
 
             calculo.Deposito(cliente, valor);
             Console.WriteLine($"Saldo atual é: {cliente.Saldo}");
-
+            clienteRepository.SalvarCliente(cliente);
             Console.ReadLine();
         }
 
-        static void ProcessWithdrawal(string nome, Cliente cliente, Calculo calculo)
+        static void ProcessWithdrawal(string nome, Cliente cliente, Calculo calculo, ClienteRepository clienteRepository)
         {
             Console.Clear();
             Console.WriteLine("Saque");
@@ -168,6 +168,7 @@ class Program
 
             calculo.Saque(cliente, valorSaque);
             Console.WriteLine($"Saldo atual é: {cliente.Saldo}");
+            clienteRepository.SalvarCliente(cliente);
             Console.ReadLine();
         }
     }

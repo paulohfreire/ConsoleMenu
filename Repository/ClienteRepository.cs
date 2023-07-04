@@ -53,7 +53,7 @@ namespace SeuProjeto.Repository
 
         private void InserirCliente(Cliente cliente, SqlConnection connection)
         {
-            string query = "INSERT INTO Cliente (Id, Nome, Cpf, Saldo) VALUES (@Id, @Nome, @Cpf, @Saldo)";
+            string query = "INSERT INTO Cliente(Id, Nome, Cpf, Saldo) VALUES (@Id, @Nome, @Cpf, @Saldo)";
             connection.Execute(query, cliente);
         }
     }
