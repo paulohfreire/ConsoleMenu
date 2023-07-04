@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleMenu", "ConsoleMenu.csproj", "{BD58F999-F170-4497-8C3D-BE2763F3ED55}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repository", "Repository\Repository.csproj", "{A998A4A3-0EE8-4F67-8C84-80836129889E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BD58F999-F170-4497-8C3D-BE2763F3ED55} = {BD58F999-F170-4497-8C3D-BE2763F3ED55}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
