@@ -1,6 +1,7 @@
 ﻿using ConsoleMenu.Application;
 using ConsoleMenu.Domain.Modelo;
 using CpfCnpjLibrary;
+using SeuProjeto.Repository;
 
 class Program
 {
@@ -9,14 +10,18 @@ class Program
     {
         bool sair = false;
         Calculo calculo = new Calculo();
+        
         List<string> errorMessages = new List<string>();
+        string connectionString = "Server=tcp:localhost;Database=Cliente01;User Id=sa;Password=admin123;\r\n";
+
+        ClienteRepository clienteRepository = new ClienteRepository(connectionString);
 
         while (!sair)
         {
             Cliente cliente = new Cliente();
-
             Console.WriteLine("Olá, digite seu nome: ");
             string nome = Console.ReadLine();
+
             if (string.IsNullOrWhiteSpace(nome))
             {
                 errorMessages.Add("Nome digitado não é válido");
@@ -31,11 +36,20 @@ class Program
 
             Console.WriteLine("Olá, digite seu Id: ");
             string id = Console.ReadLine();
-            var isNumeric = int.TryParse(id, out _);
+            var isNumeric = int.TryParse(id, out int parsedId);
 
             if (isNumeric)
             {
-                cliente.Id = int.Parse(id);
+                cliente = clienteRepository.ObterClientePorId(parsedId);
+                if (cliente != null)
+                {
+                    // Cliente já existe, redirecionar para o menu
+                    sair = ShowMainMenu(cliente.Nome, cliente, calculo);
+                    continue;
+                }
+
+                cliente.Id = parsedId;
+                clienteRepository.SalvarCliente(cliente);
             }
             else
             {
@@ -71,6 +85,7 @@ class Program
             {
                 cliente.Saldo = parsedSaldo;
             }
+            clienteRepository.SalvarCliente(cliente);
             sair = ShowMainMenu(nome, cliente, calculo);
 
         }
